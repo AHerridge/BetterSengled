@@ -1,7 +1,5 @@
 from enum import Enum
 
-from sengled.element.device import Device
-
 
 class Traits(Enum):
     BRIGHTNESS = 'brightness'  # 0-255
@@ -23,14 +21,12 @@ class Traits(Enum):
 
 
 class Room:
-    devices = []
+    devices = None
     data = None
 
-    def __init__(self, data):
+    def __init__(self, data, devices):
         self.data = data
-
-        for device_data in data['deviceList']:
-            self.add_device(Device(device_data))
+        self.devices = devices
 
     def add_device(self, device):
         self.devices.append(device)

@@ -61,7 +61,10 @@ class Client:
         self.rooms = []
 
         for room_data in room_list:
+            devices = []
             if 'deviceList' in room_data:
                 for device_data in room_data['deviceList']:
-                    self.devices.append(Device(device_data))
-            self.rooms.append(Room(room_data))
+                    device = Device(device_data)
+                    devices.append(device)
+                    self.devices.append(device)
+            self.rooms.append(Room(room_data, devices))
