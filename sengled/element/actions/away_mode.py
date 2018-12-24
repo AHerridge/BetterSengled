@@ -9,11 +9,11 @@ class AwayMode(ThreadedAction):
     def run(self):
         print("Thread Started")
         while not self.event.wait(1):
-            device_id = random.choice(self.devices)
-            self.home.devices.toggle_state(device_id)
+            device = random.choice(self.devices)
+            device.toggle_state()
 
         print("Thread Killed")
 
-    def __init__(self, app, home, endpoint, devices):
-        super().__init__(app, home, endpoint)
+    def __init__(self, app, endpoint, home, devices):
+        super().__init__(app, endpoint, home)
         self.devices = devices

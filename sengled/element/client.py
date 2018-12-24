@@ -1,13 +1,11 @@
 import requests
 
-from sengled.element import sengled_base_url, zigbee_url, customer_url, room_url
-from sengled.element.device_controller import DeviceController
-from sengled.element.rooms import Rooms
+from sengled.element import sengled_base_url, zigbee_url, customer_url, room_url, headers
+from sengled.element.device import Device
+from sengled.element.room import Room
 
 
 class Client:
-    headers = {'Content-type': 'application/json'}
-
     username = None
     password = None
     jsessionid = None
@@ -16,16 +14,23 @@ class Client:
     rooms = None
     devices = None
 
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.devices = []
+        self.rooms = []
+        self.update()
+
     def login(self):
         if self.logged_in:
             return
         login_data = {'os_type': 'android', 'pwd': self.password, 'user': self.username, 'uuid': 'xxxxxx'}
         resp = requests.post(sengled_base_url + zigbee_url + customer_url + 'login.json',
-                             headers=self.headers, verify=False, json=login_data)
+                             headers=headers, verify=False, json=login_data)
         if resp.status_code == 200:
             resp_json = resp.json()
             if 'msg' in resp_json and resp_json['msg'] == 'success':
-                self.headers['Cookie'] = 'JSESSIONID={}'.format(resp_json['jsessionid'])
+                headers['Cookie'] = 'JSESSIONID={}'.format(resp_json['jsessionid'])
                 self.jsessionid = resp_json['jsessionid']
                 self.logged_in = True
             else:
@@ -45,7 +50,7 @@ class Client:
     def update(self):
         self.login()
         resp = requests.post(sengled_base_url + zigbee_url + room_url + 'getUserRoomsDetail.json',
-                             headers=self.headers, verify=False, json={})
+                             headers=headers, verify=False, json={})
         if resp.status_code == 200:
             resp_json = resp.json()
             if 'roomList' in resp_json:
@@ -54,17 +59,8 @@ class Client:
             print('Could not get rooms: {}'.format(resp.status_code))
 
     def parse_room_list(self, room_list):
-        self.rooms.clear_rooms()
-        for room in room_list:
-            if 'deviceList' in room:
-                for device in room['deviceList']:
-                    self.devices.add_device(device, room['roomId'])
-            del room['deviceList']
-            self.rooms.add_room(room)
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        self.devices = DeviceController(self)
-        self.rooms = Rooms()
-        self.update()
+        for room_data in room_list:
+            if 'deviceList' in room_data:
+                for device_data in room_data['deviceList']:
+                    self.devices.append(Device(device_data))
+            self.rooms.append(Room(room_data))
