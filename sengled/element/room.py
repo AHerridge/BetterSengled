@@ -39,3 +39,20 @@ class Room:
 
     def get_trait(self, trait):
         return self.data[trait.value]
+
+    def set_brightness(self, value):
+        for device in self.devices:
+            device.set_brightness(value)
+
+    def set_color(self, value):
+        for device in self.devices:
+            device.set_color(value)
+
+    def set_state(self, value):
+        for device in self.devices:
+            device.set_state(value)
+
+    def toggle_state(self):
+        value = 0 if self.get_trait(Traits.STATUS) else 1
+        for device in self.devices:
+            device.set_state(value)

@@ -13,7 +13,7 @@ def create_app():
     DayMode(app, "dayMode", home)
     NightMode(app, "nightMode", home)
     Sunrise(app, "sunrise", home)
-    AwayMode(app, "awayMode", home, home.devices)
+    AwayMode(app, "awayMode", home)
 
     @app.route("/")
     def index():
