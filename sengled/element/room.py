@@ -9,7 +9,7 @@ class Room:
         self.data = data
 
         for device_data in data['deviceList']:
-            self.devices.append(Device(device_data))
+            self.add_device(Device(device_data))
 
     def add_device(self, device):
         device.set_device_value('roomId', self.data['room_id'])
