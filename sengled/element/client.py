@@ -17,8 +17,6 @@ class Client:
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.devices = []
-        self.rooms = []
         self.update()
 
     def login(self):
@@ -59,6 +57,9 @@ class Client:
             print('Could not get rooms: {}'.format(resp.status_code))
 
     def parse_room_list(self, room_list):
+        self.devices = []
+        self.rooms = []
+
         for room_data in room_list:
             if 'deviceList' in room_data:
                 for device_data in room_data['deviceList']:
