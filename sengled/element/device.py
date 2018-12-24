@@ -43,7 +43,7 @@ class Device:
     def set_trait(self, trait, value):
         toggle_json = {Traits.ID.value: self.get_trait(Traits.ID), trait.value: value}
         url = sengled_base_url + zigbee_url + device_url + 'deviceSet' + trait.to_pascal_case() + '.json'
-        print(self.get_trait(Traits.NAME) + "." + trait.name, "->", value)
+        print(self.get_trait(Traits.NAME) + "." + trait.name, self.get_trait(trait), "->", value)
         resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
         if resp.status_code == 200:
             self.data[trait.value] = value
@@ -65,4 +65,7 @@ class Device:
         self.set_state(0 if self.get_trait(Traits.STATE) else 1)
 
     def get_trait(self, trait):
-        return self.data[trait.value]
+        if trait.value in self.data:
+            return self.data[trait.value]
+        else:
+            return "N/A"

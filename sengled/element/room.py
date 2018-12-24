@@ -56,3 +56,5 @@ class Room:
         value = 0 if self.get_trait(Traits.STATUS) else 1
         for device in self.devices:
             device.set_state(value)
+
+        self.data[Traits.STATUS.value] = value
