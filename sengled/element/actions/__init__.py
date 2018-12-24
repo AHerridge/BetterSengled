@@ -9,7 +9,7 @@ from sengled.element.actions.sunrise import Sunrise
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    home = client.Client("username", "password")
+    home = client.Client("username", "password")  # <-- CHANGE THIS LINE
     DayMode(app, home, "dayMode")
     NightMode(app, home, "nightMode")
     Sunrise(app, home, "sunrise")

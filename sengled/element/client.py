@@ -36,6 +36,7 @@ class Client:
                     key = 'info'
                 if key is not None:
                     print('Login unsuccessful: {}'.format(resp_json[key]))
+                    print('Make sure you change the "username" and "password" in /sengled/element/actions/__init__.py')
                 else:
                     print('Could not login successfully')
         else:
