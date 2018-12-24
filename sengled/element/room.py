@@ -12,7 +12,6 @@ class Room:
             self.add_device(Device(device_data))
 
     def add_device(self, device):
-        device.set_device_value('roomId', self.data['room_id'])
         self.devices.append(device)
 
     def clear_device_list(self):
