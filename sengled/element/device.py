@@ -6,11 +6,32 @@ from sengled.element import sengled_base_url, zigbee_url, device_url, headers
 
 
 class Traits(Enum):
-    BRIGHTNESS = ['Brightness', 'brightness']  # 0-255
-    COLOR_TEMP = ['ColorTemperature', 'colorTemperature']  # 0-100
-    STATE = ['OnOff', 'onoff']  # ON=1 OFF=0
-    NAME = ['DeviceName', 'deviceName']
-    ID = ['DeviceId', 'deviceUuid']
+    BRIGHTNESS = 'brightness'  # 0-255
+    COLOR_TEMP = 'colorTemperature'  # 0-100
+    STATE = 'onoff'  # ON=1 OFF=0
+
+    #  NOT SURE IF SET WORKS FOR THESE
+    NAME = 'deviceName'
+    ID = 'deviceUuid'
+    GATEWAY_ID = 'gatewayUuid'
+    SIGNAL_QUALITY = 'signalQuality'
+    SIGNAL_VALUE = 'signalValue'
+    ACTIVE_HOURS = 'activeHours'
+    ONLINE = 'isOnline'  # ON=1 OFF=0
+    POWER = 'power'
+    ON_COUNT = 'onCount'
+    POWER_CONSUMPTION_TIME = 'powerConsumptionTime'
+    PRODUCT_CODE = 'productCode'
+    ATTRIBUTE_IDS = 'attributeIds'  # Comma-separated list of integers
+    COLOR_R = 'rgbColorR'  # 0-255
+    COLOR_G = 'rgbColorG'  # 0-255
+    COLOR_B = 'rgbColorB'  # 0-255
+
+    def to_pascal_case(self):
+        if self is Traits.STATE:
+            return 'OnOff'
+        else:
+            return self.value[:1].upper() + self.value[1:]
 
 
 class Device:
@@ -19,35 +40,29 @@ class Device:
     def __init__(self, data):
         self.data = data
 
-    def set_device_value(self, key, value):
-        toggle_json = {Traits.ID.value[1]: self.get_id(), key.value[1]: value}
-        url = sengled_base_url + zigbee_url + device_url + 'deviceSet' + key.value[0] + '.json'
-        print(self.get_name() + "." + key.name, "->", value)
+    def set_trait(self, trait, value):
+        toggle_json = {Traits.ID.value: self.get_trait(Traits.ID), trait.value: value}
+        url = sengled_base_url + zigbee_url + device_url + 'deviceSet' + trait.to_pascal_case() + '.json'
+        print(self.get_trait(Traits.NAME) + "." + trait.name, "->", value)
         resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
         if resp.status_code == 200:
-            self.data[key.value[1]] = value
+            self.data[trait.value] = value
             return True
         else:
             print('Could not change device value: ' + resp.reason)
             return False
 
     def set_brightness(self, value):
-        return self.set_device_value(Traits.BRIGHTNESS, value)
+        return self.set_trait(Traits.BRIGHTNESS, value)
 
     def set_color(self, value):
-        return self.set_device_value(Traits.COLOR_TEMP, value)
+        return self.set_trait(Traits.COLOR_TEMP, value)
 
     def set_state(self, value):
-        return self.set_device_value(Traits.STATE, value)
+        return self.set_trait(Traits.STATE, value)
 
     def toggle_state(self):
-        self.set_state(0 if self.get_state() else 1)
+        self.set_state(0 if self.get_trait(Traits.STATE) else 1)
 
-    def get_state(self):
-        return self.data[Traits.STATE.value[1]]
-
-    def get_name(self):
-        return self.data[Traits.NAME.value[1]]
-
-    def get_id(self):
-        return self.data[Traits.ID.value[1]]
+    def get_trait(self, trait):
+        return self.data[trait.value]
