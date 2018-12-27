@@ -2,7 +2,7 @@ from enum import Enum
 
 import requests
 
-from sengled.element import sengled_base_url, zigbee_url, device_url, headers
+from urls import sengled_base_url, zigbee_url, device_url, headers
 
 
 class Traits(Enum):

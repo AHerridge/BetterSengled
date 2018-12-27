@@ -7,6 +7,6 @@ Python library: [sengled-python](https://github.com/sroehl/sengled-python) for i
 * Element Plus A19 bulb (Dimmable, Tunable White)
 
 ## Getting Started
-**You must change the "username" and "password" in the sengled/element/actions/\_\_init\_\_.py**
+**You must change the "username" and "password" in setup.py**
 
 See actions for an example of how to use the library to control Sengled Element bulbs.

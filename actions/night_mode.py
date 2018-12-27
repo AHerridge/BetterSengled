@@ -1,4 +1,4 @@
-from sengled.element.actions.action import Action
+from actions.action import Action
 
 
 class NightMode(Action):

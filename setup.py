@@ -1,10 +1,10 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, render_template
 
-from sengled.element import client
-from sengled.element.actions.away_mode import AwayMode
-from sengled.element.actions.day_mode import DayMode
-from sengled.element.actions.night_mode import NightMode
-from sengled.element.actions.sunrise import Sunrise
+import client
+from actions.away_mode import AwayMode
+from actions.day_mode import DayMode
+from actions.night_mode import NightMode
+from actions.sunrise import Sunrise
 
 
 def create_app():
@@ -23,5 +23,9 @@ def create_app():
                 url = url_for(rule.endpoint, **(rule.defaults or {}))
                 links += rule.endpoint + " -> <a href=\"" + url + "\">" + url + "</a><br>"
         return links
+
+    @app.route("/home")
+    def home_page():
+        return render_template("index.html")
 
     return app

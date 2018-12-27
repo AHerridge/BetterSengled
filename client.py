@@ -1,8 +1,8 @@
 import requests
 
-from sengled.element import sengled_base_url, zigbee_url, customer_url, room_url, headers
-from sengled.element.device import Device
-from sengled.element.room import Room
+from device import Device
+from room import Room
+from urls import sengled_base_url, zigbee_url, customer_url, room_url, headers
 
 
 class Client:
@@ -39,7 +39,7 @@ class Client:
                     key = 'info'
                 if key is not None:
                     print('Login unsuccessful: {}'.format(resp_json[key]))
-                    print('Make sure you change the "username" and "password" in /sengled/element/actions/__init__.py')
+                    print('Make sure you change the "username" and "password" in /sengled/element/actions/urls.py')
                 else:
                     print('Could not login successfully')
         else:
