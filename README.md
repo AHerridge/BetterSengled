@@ -10,9 +10,7 @@
 * [Element Plus](https://us.sengled.com/products/element-plus-bulb) (Dimmable, Tunable White)
 
 ## Getting Started
->**You must change the "username" and "password" in setup.py**
-
-### Run the flask server
+**You must change the "username" and "password" in setup.py**
 
 In console type:
 
