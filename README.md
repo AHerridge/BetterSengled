@@ -23,3 +23,11 @@ flask run
 Open in web browser - default: [localhost:5000/home](http://localhost:5000/home)
 
 **See actions for advanced examples of how to use the library to control Sengled Element bulbs.**
+
+## API Endpoints
+- /devices -> get all devices as json list
+- /devices/<device_id> -> get data for device identified by device_id as json
+- /devices/<device_id>/<trait_name>/<new_value> -> set device trait to value and return "Success" or "Failure"
+- /actions/<action_name> -> executes action
+
+Device traits are defined in devices.py
