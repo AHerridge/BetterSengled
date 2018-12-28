@@ -1,0 +1,35 @@
+<div class="card">
+    {% if device.get_trait(Traits.STATE) == 1 %}
+        <img class="card-img-top" src="/static/light-bulb-on.png" alt="bulb on"
+             onclick='setTrait("{{ device.get_trait(Traits.ID) }}", "{{ Traits.STATE.name }}", "0")'>
+
+    {% else %}
+        <img class="card-img-top" src="/static/light-bulb-off.png" alt="bulb off"
+             onclick='setTrait("{{ device.get_trait(Traits.ID) }}", "{{ Traits.STATE.name }}", "1")'>
+    {% endif %}
+
+    <div class="card-body">
+        <a href="/devices/{{ device.get_trait(Traits.ID) }}">
+            <h5 class="card-title">{{ device.get_trait(Traits.NAME) }}</h5>
+        </a>
+        <input id="{{ device.get_trait(Traits.ID) }}-brightness" type="number"
+               value="{{ device.get_trait(Traits.BRIGHTNESS) }}" min="0" max="255" step="10"/>
+        <script>
+            $("#{{ device.get_trait(Traits.ID) }}-brightness").inputSpinner();
+            $("#{{ device.get_trait(Traits.ID) }}-brightness").on("change", function (event) {
+                setTrait("{{ device.get_trait(Traits.ID) }}", "{{ Traits.BRIGHTNESS.name }}", $(this).val())
+            })
+        </script>
+
+        {% if device.get_trait(Traits.COLOR_TEMP) != "N/A" %}
+            <input id="{{ device.get_trait(Traits.ID) }}-color" type="number"
+                   value="{{ device.get_trait(Traits.COLOR_TEMP) }}" min="0" max="100" step="10"/>
+            <script>
+                $("#{{ device.get_trait(Traits.ID) }}-color").inputSpinner();
+                $("#{{ device.get_trait(Traits.ID) }}-color").on("change", function (event) {
+                    setTrait("{{ device.get_trait(Traits.ID) }}", "{{ Traits.COLOR_TEMP.name }}", $(this).val())
+                })
+            </script>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+    <div class="card-deck mx-auto w-75">
+        {% for device in devices %}
+            <div id="{{ device.get_trait(Traits.ID) }}" class="col-md-6 col-lg-4 col-xl-3 mt-5">
+                {% include 'device-card.html' %}
+            </div>
+        {% endfor %}
+    </div>
+    <script>
+        function setTrait(device_id, trait_name, value) {
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = (e) => {
+                if (request.readyState === 4)
+                    updateDevice(device_id);
+            };
+            request.open("GET", "/devices/" + device_id + "/" + trait_name + "/" + value);
+            request.send();
+        }
+
+        function updateDevice(device_id) {
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = (e) => {
+                if (request.readyState === 4) {
+                    let device_data = JSON.parse(request.responseText);
+                    let img = $("#" + device_id + " img")[0];
+                    img.src = (device_data["{{ Traits.STATE.value }}"] === 1 ? "/static/light-bulb-on.png" : "/static/light-bulb-off.png");
+                    img.alt = (device_data["{{ Traits.STATE.value }}"] === 1 ? "bulb on" : "bulb off");
+                    img.onclick = (e) => {
+                        setTrait(device_id, "{{ Traits.STATE.name }}", device_data["{{ Traits.STATE.value }}"] === 1 ? "0" : "1")
+                    };
+                }
+            };
+            request.open("GET", "/devices/" + device_id);
+            request.send();
+        }
+    </script>
+{% endblock %}

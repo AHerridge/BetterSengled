@@ -7,7 +7,7 @@ from urls import sengled_base_url, zigbee_url, device_url, headers
 
 class Traits(Enum):
     BRIGHTNESS = 'brightness'  # 0-255
-    COLOR_TEMP = 'colorTemperature'  # 0-100
+    COLOR_TEMP = 'colortemperature'  # 0-100
     STATE = 'onoff'  # ON=1 OFF=0
 
     #  NOT SURE IF SET WORKS FOR THESE
@@ -30,15 +30,19 @@ class Traits(Enum):
     def to_pascal_case(self):
         if self is Traits.STATE:
             return 'OnOff'
+        elif self is Traits.COLOR_TEMP:
+            return 'ColorTemperature'
         else:
             return self.value[:1].upper() + self.value[1:]
 
 
 class Device:
     data = None
+    home = None
 
-    def __init__(self, data):
+    def __init__(self, data, home):
         self.data = data
+        self.home = home
 
     def set_trait(self, trait, value):
         toggle_json = {Traits.ID.value: self.get_trait(Traits.ID), trait.value: value}
@@ -46,7 +50,11 @@ class Device:
         print(self.get_trait(Traits.NAME) + "." + trait.name, self.get_trait(trait), "->", value)
         resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
         if resp.status_code == 200:
-            self.data[trait.value] = value
+            if str(self.data[trait.value]).isdigit():
+                self.data[trait.value] = int(value)
+            else:
+                self.data[trait.value] = value
+            # self.home.update() unnecessary because of server delay
             return True
         else:
             print('Could not change device value: ' + resp.reason)
