@@ -7,7 +7,7 @@ from urls import sengled_base_url, zigbee_url, device_url, headers
 
 class Traits(Enum):
     BRIGHTNESS = 'brightness'  # 0-255
-    COLOR_TEMP = 'colortemperature'  # 0-100
+    COLOR_TEMP = 'colorTemperature'  # 0-100
     STATE = 'onoff'  # ON=1 OFF=0
 
     #  NOT SURE IF SET WORKS FOR THESE
@@ -75,5 +75,7 @@ class Device:
     def get_trait(self, trait):
         if trait.value in self.data:
             return self.data[trait.value]
+        elif trait is Traits.COLOR_TEMP:
+            return self.data[trait.value.lower()]
         else:
             return "N/A"

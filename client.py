@@ -75,9 +75,6 @@ class Client:
                         for device_data in room_data['deviceList']:
                             device = self.get_device_by_id(device_data[DeviceTraits.ID.value])
                             device.data = device_data
-
-                            if device_data[DeviceTraits.ID.value] == "B0CE1814030303A6":
-                                print(device_data)
         else:
             print('Could not get rooms: {}'.format(resp.status_code))
 
