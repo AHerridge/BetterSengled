@@ -1,4 +1,4 @@
-from sengled.element.actions.threaded_action import ThreadedAction
+from actions.threaded_action import ThreadedAction
 
 
 class Sunrise(ThreadedAction):
