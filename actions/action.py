@@ -5,7 +5,7 @@ class Action:
         print("Not Implemented Yet!")
 
     def __init__(self, app, endpoint, home):
-        rule = "/" + endpoint
+        rule = "/actions/" + endpoint
         print("Creating endpoint :", rule)
         app.add_url_rule(rule, endpoint, self.execute)
         self.home = home

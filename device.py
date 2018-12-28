@@ -50,10 +50,13 @@ class Device:
         print(self.get_trait(Traits.NAME) + "." + trait.name, self.get_trait(trait), "->", value)
         resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
         if resp.status_code == 200:
-            if str(self.data[trait.value]).isdigit():
-                self.data[trait.value] = int(value)
-            else:
-                self.data[trait.value] = value
+            if trait.value in self.data:
+                if trait is Traits.COLOR_TEMP:
+                    self.data[trait.value.lower()] = int(value)
+                elif str(self.data[trait.value]).isdigit():
+                    self.data[trait.value] = int(value)
+                else:
+                    self.data[trait.value] = value
             # self.home.update() unnecessary because of server delay
             return True
         else:
