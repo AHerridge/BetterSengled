@@ -43,17 +43,32 @@ class Room:
     def get_trait(self, trait):
         return self.data[trait.value]
 
+    def set_trait(self, trait, value):
+        print(self.get_name() + "." + trait.name, self.get_trait(trait), "->", value)
+        if trait is Traits.BRIGHTNESS:
+            self.set_brightness(value)
+        elif trait is Traits.COLOR_TEMP:
+            self.set_color_temp(value)
+        elif trait is Traits.STATUS:
+            self.set_state(value)
+        else:
+            print("Set room", trait.name, "not implemented yet")
+
+        self.data[trait.value] = value
+
     def set_brightness(self, value):
         for device in self.devices:
             device.set_brightness(value)
+        self.update_status()
 
-    def set_color(self, value):
+    def set_color_temp(self, value):
         for device in self.devices:
-            device.set_color(value)
+            device.set_color_temp(value)
 
     def set_state(self, value):
         for device in self.devices:
             device.set_state(value)
+        self.update_status()
 
     def toggle_state(self):
         value = 0 if self.get_trait(Traits.STATUS) else 1
@@ -61,6 +76,16 @@ class Room:
             device.set_state(value)
 
         self.data[Traits.STATUS.value] = value
+        self.update_status()
+
+    def update_status(self):
+        status = 0
+        for device in self.devices:
+            if device.get_state() == 1:
+                status = 1
+                break
+
+        self.data[Traits.STATUS.value] = status
 
 
 def gen_getter(trait):

@@ -2,6 +2,7 @@ from flask import Flask, url_for, render_template, jsonify
 
 import client
 import device
+import room
 from actions.away_mode import AwayMode
 from actions.day_mode import DayMode
 from actions.night_mode import NightMode
@@ -30,7 +31,7 @@ def create_app():
     @app.route("/home")
     def home_page():
         home.update()
-        return render_template("home.html", devices=home.devices, Traits=device.Traits)
+        return render_template("home.html", RoomTraits=room.Traits, DeviceTraits=device.Traits, rooms=home.rooms)
 
     @app.route("/devices")
     def get_devices():
@@ -41,11 +42,27 @@ def create_app():
         return jsonify(home.get_device_by_id(device_id).data)
 
     @app.route("/devices/<device_id>/<trait_name>")
-    def get_trait(device_id, trait_name):
+    def get_device_trait(device_id, trait_name):
         return home.get_device_by_id(device_id).get_trait(device.Traits[trait_name])
 
     @app.route("/devices/<device_id>/<trait_name>/<value>")
-    def set_trait(device_id, trait_name, value):
+    def set_device_trait(device_id, trait_name, value):
         return "Success" if home.get_device_by_id(device_id).set_trait(device.Traits[trait_name], value) else "Failure"
+
+    @app.route("/rooms")
+    def get_rooms():
+        return jsonify([room.data for room in home.rooms])
+
+    @app.route("/rooms/<room_id>")
+    def get_room(room_id):
+        return jsonify(home.get_room_by_id(room_id).data)
+
+    @app.route("/rooms/<room_id>/<trait_name>")
+    def get_room_trait(room_id, trait_name):
+        return home.get_room_by_id(room_id).get_trait(room.Traits[trait_name])
+
+    @app.route("/rooms/<room_id>/<trait_name>/<value>")
+    def set_room_trait(room_id, trait_name, value):
+        return "Success" if home.get_room_by_id(room_id).set_trait(room.Traits[trait_name], value) else "Failure"
 
     return app

@@ -56,9 +56,9 @@ class Device:
             return "N/A"
 
     def set_trait(self, trait, value):
-        toggle_json = {Traits.ID.value: self.get_trait(Traits.ID), trait.value: value}
+        toggle_json = {Traits.ID.value: self.get_id(), trait.value: value}
         url = sengled_base_url + zigbee_url + device_url + 'deviceSet' + trait.to_pascal_case() + '.json'
-        print(self.get_trait(Traits.NAME) + "." + trait.name, self.get_trait(trait), "->", value)
+        print(self.get_name() + "." + trait.name, self.get_trait(trait), "->", value)
         resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
         if resp.status_code == 200:
             if trait.value in self.data:
@@ -68,11 +68,14 @@ class Device:
                         self.data[Traits.STATE.value] = 1 if value > 0 else 0
 
                 self.data[trait.value] = value
+                self.home.get_room_for_device(self).update_status()
                 return True
             elif trait is Traits.COLOR_TEMP:
                 self.data[trait.value.lower()] = int(value)
+                return True
             else:
                 print('Trait', trait.name, 'does not exist')
+                return False
         else:
             print('Could not change device', trait.name, ':' + resp.reason)
             return False

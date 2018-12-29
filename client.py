@@ -70,7 +70,8 @@ class Client:
             resp_json = resp.json()
             if 'roomList' in resp_json:
                 for room_data in resp_json['roomList']:
-                    # room = self.get_room_by_id(room_data[RoomTraits.ID.value])
+                    room = self.get_room_by_id(room_data[RoomTraits.ID.value])
+                    room.data = room_data
                     if 'deviceList' in room_data:
                         for device_data in room_data['deviceList']:
                             device = self.get_device_by_id(device_data[DeviceTraits.ID.value])
@@ -93,12 +94,21 @@ class Client:
 
     def get_room_by_id(self, room_id):
         for room in self.rooms:
-            if room.get_trait(RoomTraits.ID) == room_id:
+            if int(room.get_id()) == int(room_id):
                 return room
+        print("Room not found:", room_id)
         return None
 
     def get_device_by_id(self, device_id):
         for device in self.devices:
-            if device.get_trait(DeviceTraits.ID) == device_id:
+            if device.get_id() == device_id:
                 return device
+        print("Device not found:", device_id)
+        return None
+
+    def get_room_for_device(self, device):
+        for room in self.rooms:
+            if device in room.devices:
+                return room
+        print("Room not found for device:", device.get_id())
         return None

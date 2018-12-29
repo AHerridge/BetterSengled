@@ -1,19 +1,57 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
 {% block content %}
-    <div class="card-deck mx-auto w-75">
-        {% for device in devices %}
-            <div id="{{ device.get_trait(Traits.ID) }}" class="col-md-6 col-lg-4 col-xl-3 mt-5">
-                {% include 'device-card.html' %}
-            </div>
-        {% endfor %}
-    </div>
+    {% for room in rooms %}
+        <div class="row">
+            {% include 'room-card.html' %}
+        </div>
+    {% endfor %}
     <script>
-        function setTrait(device_id, trait_name, value) {
+        function setRoomTrait(room_id, trait_name, value) {
             let request = new XMLHttpRequest();
             request.onreadystatechange = (e) => {
                 if (request.readyState === 4)
-                    updateDevice(device_id);
+                    updateRoom(room_id);
+            };
+            request.open("GET", "/rooms/" + room_id + "/" + trait_name + "/" + value);
+            request.send();
+        }
+
+        function updateRoom(room_id) {
+            $("#" + room_id).find("div.card").each(function () {
+                updateDevice($(this).prop("id"))
+            });
+
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = (e) => {
+                if (request.readyState === 4) {
+                    let room_data = JSON.parse(request.responseText);
+                    let img = $("#" + room_id + " img")[0];
+                    if (room_data["{{ RoomTraits.STATUS.value }}"] === 1) {
+                        img.src = "/static/power-on.png";
+                        img.alt = "power on";
+                        img.onclick = (e) => {
+                            setRoomTrait(room_id, "{{ RoomTraits.STATUS.name }}", "0")
+                        };
+                    } else if (room_data["{{ RoomTraits.STATUS.value }}"] === 0) {
+                        img.src = "/static/power-off.png";
+                        img.alt = "power off";
+                        img.onclick = (e) => {
+                            setRoomTrait(room_id, "{{ RoomTraits.STATUS.name }}", "1")
+                        };
+                    }
+                }
+            };
+            request.open("GET", "/rooms/" + room_id);
+            request.send();
+        }
+
+        function setDeviceTrait(device_id, trait_name, value) {
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = (e) => {
+                if (request.readyState === 4)
+                    updateRoom($("#" + device_id).parents("div.card").prop("id"))
+                //updateDevice(device_id);
             };
             request.open("GET", "/devices/" + device_id + "/" + trait_name + "/" + value);
             request.send();
@@ -24,12 +62,16 @@
             request.onreadystatechange = (e) => {
                 if (request.readyState === 4) {
                     let device_data = JSON.parse(request.responseText);
+                    console.log(device_data);
                     let img = $("#" + device_id + " img")[0];
-                    img.src = (device_data["{{ Traits.STATE.value }}"] === 1 ? "/static/light-bulb-on.png" : "/static/light-bulb-off.png");
-                    img.alt = (device_data["{{ Traits.STATE.value }}"] === 1 ? "bulb on" : "bulb off");
+                    img.src = (device_data["{{ DeviceTraits.STATE.value }}"] === 1 ? "/static/light-bulb-on.png" : "/static/light-bulb-off.png");
+                    img.alt = (device_data["{{ DeviceTraits.STATE.value }}"] === 1 ? "bulb on" : "bulb off");
                     img.onclick = (e) => {
-                        setTrait(device_id, "{{ Traits.STATE.name }}", device_data["{{ Traits.STATE.value }}"] === 1 ? "0" : "1")
+                        setDeviceTrait(device_id, "{{ DeviceTraits.STATE.name }}", device_data["{{ DeviceTraits.STATE.value }}"] === 1 ? "0" : "1")
                     };
+
+                    $("#" + device_id + "-brightness").val(device_data["{{ DeviceTraits.BRIGHTNESS.value }}"]);
+                    $("#" + device_id + "-color").val(device_data["{{ DeviceTraits.COLOR_TEMP.value.lower() }}"]);
                 }
             };
             request.open("GET", "/devices/" + device_id);

@@ -1,0 +1,44 @@
+<div class="card" id="{{ room.get_id() }}">
+    <div class="card-header">
+        <h3 class="card-title">
+            {% if room.get_status() == 1 %}
+                <img src="/static/power-on.png" alt="power on"
+                     onclick='setRoomTrait("{{ room.get_id() }}", "{{ RoomTraits.STATUS.name }}", "0")'
+                     style="width: 50px; height: 50px;">
+
+            {% else %}
+                <img src="/static/power-off.png" alt="power off"
+                     onclick='setRoomTrait("{{ room.get_id() }}", "{{ RoomTraits.STATUS.name }}", "1")'
+                     style="width: 50px; height: 50px;">
+            {% endif %}
+            {{ room.get_name() }}
+        </h3>
+
+        <input id="{{ room.get_id() }}-brightness" type="number"
+               value="{{ room.get_brightness() }}" min="0" max="255" step="10"/>
+        <script>
+            $("#{{ room.get_id() }}-brightness").inputSpinner();
+            $("#{{ room.get_id() }}-brightness").on("change", function (event) {
+                setRoomTrait("{{ room.get_id() }}", "{{ RoomTraits.BRIGHTNESS.name }}", $(this).val())
+            })
+        </script>
+
+        <input id="{{ room.get_id() }}-color" type="number"
+               value="{{ room.get_color_temp() }}" min="0" max="100" step="10"/>
+        <script>
+            $("#{{ room.get_id() }}-color").inputSpinner();
+            $("#{{ room.get_id() }}-color").on("change", function (event) {
+                setRoomTrait("{{ room.get_id() }}", "{{ RoomTraits.COLOR_TEMP.name }}", $(this).val())
+            })
+        </script>
+    </div>
+    <div class="card-body">
+        <div class="card-deck mx-auto w-75">
+            {% for device in room.devices %}
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    {% include 'device-card.html' %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
