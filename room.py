@@ -19,6 +19,9 @@ class Traits(Enum):
         else:
             return self.value[:1].upper() + self.value[1:]
 
+    def to_snake_case(self):
+        return self.name.lower()
+
 
 class Room:
     devices = None
@@ -58,3 +61,20 @@ class Room:
             device.set_state(value)
 
         self.data[Traits.STATUS.value] = value
+
+
+def gen_getter(trait):
+    getter_name = 'get_' + trait.to_snake_case()
+
+    def getter(self):
+        return self.get_trait(trait)
+
+    setattr(Room, getter_name, getter)
+
+
+def gen_getters():
+    for trait in Traits:
+        gen_getter(trait)
+
+
+gen_getters()

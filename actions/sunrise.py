@@ -6,7 +6,7 @@ class Sunrise(ThreadedAction):
         print("Thread Started")
 
         for room in self.home.rooms:
-            room.set_color(0)
+            room.set_color_temp(0)
 
         i = 1
         while not self.event.wait(3) and i < 255:

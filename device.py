@@ -35,6 +35,9 @@ class Traits(Enum):
         else:
             return self.value[:1].upper() + self.value[1:]
 
+    def to_snake_case(self):
+        return self.name.lower()
+
 
 class Device:
     data = None
@@ -44,37 +47,6 @@ class Device:
         self.data = data
         self.home = home
 
-    def set_trait(self, trait, value):
-        toggle_json = {Traits.ID.value: self.get_trait(Traits.ID), trait.value: value}
-        url = sengled_base_url + zigbee_url + device_url + 'deviceSet' + trait.to_pascal_case() + '.json'
-        print(self.get_trait(Traits.NAME) + "." + trait.name, self.get_trait(trait), "->", value)
-        resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
-        if resp.status_code == 200:
-            if trait.value in self.data:
-                if trait is Traits.COLOR_TEMP:
-                    self.data[trait.value.lower()] = int(value)
-                elif str(self.data[trait.value]).isdigit():
-                    self.data[trait.value] = int(value)
-                else:
-                    self.data[trait.value] = value
-            # self.home.update() unnecessary because of server delay
-            return True
-        else:
-            print('Could not change device value: ' + resp.reason)
-            return False
-
-    def set_brightness(self, value):
-        return self.set_trait(Traits.BRIGHTNESS, value)
-
-    def set_color(self, value):
-        return self.set_trait(Traits.COLOR_TEMP, value)
-
-    def set_state(self, value):
-        return self.set_trait(Traits.STATE, value)
-
-    def toggle_state(self):
-        self.set_state(0 if self.get_trait(Traits.STATE) else 1)
-
     def get_trait(self, trait):
         if trait.value in self.data:
             return self.data[trait.value]
@@ -82,3 +54,50 @@ class Device:
             return self.data[trait.value.lower()]
         else:
             return "N/A"
+
+    def set_trait(self, trait, value):
+        toggle_json = {Traits.ID.value: self.get_trait(Traits.ID), trait.value: value}
+        url = sengled_base_url + zigbee_url + device_url + 'deviceSet' + trait.to_pascal_case() + '.json'
+        print(self.get_trait(Traits.NAME) + "." + trait.name, self.get_trait(trait), "->", value)
+        resp = requests.post(url, headers=headers, json=toggle_json, verify=False)
+        if resp.status_code == 200:
+            if trait.value in self.data:
+                if str(self.data[trait.value]).isdigit():
+                    value = int(value)
+                    if trait is Traits.BRIGHTNESS:
+                        self.data[Traits.STATE.value] = 1 if value > 0 else 0
+
+                self.data[trait.value] = value
+                return True
+            elif trait is Traits.COLOR_TEMP:
+                self.data[trait.value.lower()] = int(value)
+            else:
+                print('Trait', trait.name, 'does not exist')
+        else:
+            print('Could not change device', trait.name, ':' + resp.reason)
+            return False
+
+    def toggle_state(self):
+        self.set_state(0 if self.get_trait(Traits.STATE) else 1)
+
+
+def gen_getter_setter(trait):
+    getter_name = 'get_' + trait.to_snake_case()
+    setter_name = 'set_' + trait.to_snake_case()
+
+    def getter(self):
+        return self.get_trait(trait)
+
+    def setter(self, value):
+        return self.set_trait(trait, value)
+
+    setattr(Device, getter_name, getter)
+    setattr(Device, setter_name, setter)
+
+
+def gen_methods():
+    for trait in Traits:
+        gen_getter_setter(trait)
+
+
+gen_methods()
